@@ -32,3 +32,5 @@ not \<boolean_exp\>|<br/>
 \<loops\>::= loop\<\<element\>->\<element\>, increment \<integer\>\> {\<sub_statments\>}<br/><br/> <!-- while and for necessary? just for? -->
 \<print\>::=console <>|console <<string_literal>>| console <\<element\>><br/><br/> <!-- need to be able to print anything else? Do I have to define string_literal? -->
 \<command_line\>::=CL[0-3]:\<integer\><br/> <!-- TODO Unsure how to do this ask for help-->
+\<string_literal\>::='\<string\>'
+\<string\>::=.*

@@ -1,0 +1,3 @@
+var VARIABLE:1?
+
+Integer Variable = 1;
