@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Project {
+public class Translator {
     static HashMap<String, Integer> variables = new HashMap<String, Integer>();
     public static void main(String[] args) {
         try {
@@ -82,7 +82,7 @@ public class Project {
                 if (val.matcher(printStatement[1]).matches()) {
                     System.out.println(Integer.parseInt(printStatement[1], 2)); // Convert to binary and print
                 } else if (literal.matcher(printStatement[1]).matches()) {
-                    System.out.print(printStatement[1].subSequence(1, printStatement[1].length()-1)); // Print literal stripped of surrounding ''
+                    System.out.print(printStatement[1].substring(1, printStatement[1].length()-1)); // Print literal stripped of surrounding ''
                 } else if (var.matcher(printStatement[1]).matches()) {
                     Integer varVal;
                     if ((varVal = variables.get(printStatement[1])) != null) {
@@ -106,8 +106,9 @@ public class Project {
         Pattern prefix = Pattern.compile("do <.*> if <.*> otherwise do <.*>$"); // [A-Z]+->[0|1]+, ?[0|1]+
         Matcher matcher = prefix.matcher(statement);
         if (matcher.find()) {
-            System.out.println("Valid conditional: " + statement);
-            // TODO GO FURTHER IN
+            String[] components = statement.split(" ");
+            String condition = components[3].substring(1, components[3].length());
+            // Figure out how to parse down the condition
         } else {
             System.out.println("Conditional must be done in the form do <.*> if <.*> otherwise do <.*>: " + statement);
         }
