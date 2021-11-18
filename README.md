@@ -33,4 +33,4 @@ not \<boolean_exp\>|<br/>
 \<print\>::=console <>|console <<string_literal>>| console <\<element\>><br/><br/> <!-- need to be able to print anything else? Do I have to define string_literal? -->
 \<command_line\>::=CL[0-3]:\<integer\><br/> <!-- TODO Unsure how to do this ask for help-->
 \<string_literal\>::='\<string\>'
-\<string\>::=.*
+\<string\>::=[^?,] <!-- Any character except ? and , because of the parsing requirements -->
