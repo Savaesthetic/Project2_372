@@ -34,7 +34,7 @@ public class Translator {
                     }
                 } else {
                     System.out.println("Not a valid statement: " + statement);
-                    // TODO IS THIS ENOUGH TO CONSTITUE A COMPILATION ERROR?
+                    System.exit(1);
                 }
             }
         } catch (IOException e) {
@@ -53,12 +53,12 @@ public class Translator {
                 String[] var = statement.split(" |:"); // name = var[1], val = var[2]
                 variables.put(var[1], Integer.parseInt(var[2], 2)); // Convert from binary to decimal and add to dictionary
             } else {
-                // TODO COMPILATION ERROR
                 System.out.println("Variables can only be assigned to binary values: " + statement);
+                System.exit(1);
             }
         } else {
-            // TODO COMPILATION ERROR
             System.out.println("Variable names can only include [A-Z]: " + statement);
+            System.exit(1);
         }
     }
 
@@ -91,26 +91,83 @@ public class Translator {
                         System.out.println("Unable to print variable that does not exist: " + statement);
                     }
                 } else {
-                    // TODO COMPILATION ERROR TOO BROAD?
                     System.out.println("Can only output one variable, value, or string literal at a time: " + statement);
+                    System.exit(1);
                 }
             }
         } else {
-            // TODO DEAL WITH COMPILATION ERROR
             System.out.println("Must use console <> to print to console: " + statement);
+            System.exit(1);
         }
     }
 
     static void dealWithConditional(String statement) {
-        // TODO CREATE CONDITION CHECKER
         Pattern prefix = Pattern.compile("do <.*> if <.*> otherwise do <.*>$"); // [A-Z]+->[0|1]+, ?[0|1]+
         Matcher matcher = prefix.matcher(statement);
         if (matcher.find()) {
-            String[] components = statement.split(" ");
-            String condition = components[3].substring(1, components[3].length());
-            // Figure out how to parse down the condition
+            String[] components = statement.split(" <|> |>$");
+            String result;
+            if ((result = parseCondition(components[3])).equals("true")) {
+                System.out.println("returned true");
+            } else if (result.equals("false")) {
+                System.out.println("returned false");
+            } else {
+                System.out.println("Error during condition parse: " + components[3]);
+                System.exit(1);
+            }
         } else {
             System.out.println("Conditional must be done in the form do <.*> if <.*> otherwise do <.*>: " + statement);
         }
+    }
+
+    static String parseCondition(String condition) {
+        Pattern pattern = Pattern.compile("(.*?)(not)(.+)|(.+?)(and)(.+)|(.+?)(or)(.+)");
+        Pattern bool = Pattern.compile("(true)|(false)");
+        Matcher matcher = pattern.matcher(condition.trim());
+        Matcher boolMatcher = bool.matcher(condition.trim());
+        if (boolMatcher.matches()) {
+            return boolMatcher.group(1) != null ? boolMatcher.group(1) : boolMatcher.group(2);
+        }
+        // Have to check base case conditional
+        if (matcher.matches()) {
+            if (matcher.group(2) != null) {
+                String rightSide = parseCondition(matcher.group(3));
+                if (rightSide.equals("error")) {
+                    return rightSide;
+                }
+                if (rightSide.equals("true")) {
+                    return "false";
+                } else {
+                    return "true";
+                }
+            } else if (matcher.group(5) != null) {
+                String rightSide = parseCondition(matcher.group(6));
+                String leftSide = parseCondition(matcher.group(4));
+                if (rightSide.equals("error") || leftSide.equals("error")) {
+                    return "error";
+                }
+                if (leftSide.equals("false") || rightSide.equals("false")) {
+                    return "false";
+                } else {
+                    return "true";
+                }
+            } else if (matcher.group(8) != null) {
+                String rightSide = parseCondition(matcher.group(9));
+                String leftSide = parseCondition(matcher.group(7));
+                if (rightSide.equals("error") || leftSide.equals("error")) {
+                    return "error";
+                }
+                if (leftSide.equals("true") || rightSide.equals("true")) {
+                    return "true";
+                } else {
+                    return "false";
+                }
+            }
+        }
+        return "error";
+    }
+
+    static void dealWithExpression() {
+        // TODO
     }
 }
