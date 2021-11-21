@@ -104,7 +104,7 @@ public class Translator {
     static void dealWithConditional(String statement) {
         Pattern prefix = Pattern.compile("do <.*> if <.*> otherwise do <.*>$"); // [A-Z]+->[0|1]+, ?[0|1]+
         Matcher matcher = prefix.matcher(statement);
-        if (matcher.find()) {
+        if (matcher.matches()) {
             String[] components = statement.split(" <|> |>$");
             String result;
             if ((result = parseCondition(components[3])).equals("true")) {
@@ -121,14 +121,9 @@ public class Translator {
     }
 
     static String parseCondition(String condition) {
-        Pattern pattern = Pattern.compile("(.*?)(not)(.+)|(.+?)(and)(.+)|(.+?)(or)(.+)");
-        Pattern bool = Pattern.compile("(true)|(false)");
+        Pattern pattern = Pattern.compile("(.*?)(not)(.+)|(.+?)(and)(.+)|(.+?)(or)(.+)|(.+?)(eq)(.+)|(.+?)(!eq)(.+)|(.+?)(gt)(.+)|(.+?)(gt=)(.+)|(.+?)(lt)(.+)|(.+?)(lt=)(.+)|(true)|(false)");
+        Pattern element = Pattern.compile("([A-Z]+)|([0|1]+)");
         Matcher matcher = pattern.matcher(condition.trim());
-        Matcher boolMatcher = bool.matcher(condition.trim());
-        if (boolMatcher.matches()) {
-            return boolMatcher.group(1) != null ? boolMatcher.group(1) : boolMatcher.group(2);
-        }
-        // Have to check base case conditional
         if (matcher.matches()) {
             if (matcher.group(2) != null) {
                 String rightSide = parseCondition(matcher.group(3));
@@ -162,12 +157,74 @@ public class Translator {
                 } else {
                     return "false";
                 }
+            } else if (matcher.group(11) != null) {
+                System.out.println(matcher.group(10) + matcher.group(12));
+                Matcher left = element.matcher(matcher.group(10));
+                Matcher right = element.matcher(matcher.group(12));
+                if (!left.matches() || !right.matches()) {
+                    return "error";
+                }
+            } else if (matcher.group(14) != null) {
+                return evaluateExpression(matcher.group(13), matcher.group(14), matcher.group(15));
+            } else if (matcher.group(17) != null) {
+                // TODO
+                System.out.println(matcher.group(17));
+                System.out.println(condition);
+            } else if (matcher.group(20) != null) {
+                // TODO
+                System.out.println(matcher.group(20));
+                System.out.println(condition);
+            } else if (matcher.group(23) != null) {
+                // TODO
+                System.out.println(matcher.group(23));
+                System.out.println(condition);
+            } else if (matcher.group(26) != null) {
+                // TODO
+                System.out.println(matcher.group(26));
+                System.out.println(condition);
+            } else if (matcher.group(28) != null) {
+                return "true";
+            } else if (matcher.group(29) != null) {
+                return "false";
             }
         }
         return "error";
     }
 
-    static void dealWithExpression() {
-        // TODO
+    static String evaluateExpression(String left, String operand, String right) {
+        Integer leftValue = getValue(left);
+        Integer rightValue = getValue(right);
+        if (leftValue == null || rightValue == null) {
+            return "error";
+        }
+        switch (operand) {
+            case "eq" :
+                return leftValue == rightValue ? "true" : "false";
+            case "!eq" :
+                return leftValue != rightValue ? "true" : "false";
+            case "gt" :
+                return leftValue > rightValue ? "true" : "false";
+            case "gt=" :
+                return leftValue >= rightValue ? "true" : "false";
+            case "lt" :
+                return leftValue < rightValue ? "true" : "false";
+            case "lt=" :
+                return leftValue <= rightValue ? "true" : "false";
+            default :
+                return "error";
+        }
+    }
+
+    static Integer getValue(String element) {
+        Pattern pattern = Pattern.compile("([A-Z]+)|([0|1]+)");
+        Matcher matcher = pattern.matcher(element.trim());
+        if (matcher.matches()) {
+            if (matcher.group(1) != null) {
+                return variables.get(matcher.group(1));
+            } else {
+                return Integer.parseInt(matcher.group(2));
+            }
+        }
+        return null;
     }
 }
