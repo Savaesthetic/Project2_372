@@ -1,0 +1,2 @@
+var X:1?
+console<math<add, X, 1>>?

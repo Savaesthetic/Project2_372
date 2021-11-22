@@ -9,21 +9,29 @@ public class Translator {
     static HashMap<String, Integer> variables = new HashMap<String, Integer>();
     public static void main(String[] args) {
         try {
-            String program = Files.readString(Path.of("conditional.txt"));
-            String[] statements = program.split("\\?");
+            String program = Files.readString(Path.of("loopTest.txt"));
+            parseStatements(program, "\\?");
+        } catch (IOException e) {
+            System.out.println("Error Finding File Path.");
+            e.printStackTrace();
+        }
+    }
+
+    static void parseStatements(String statementBlock, String delimiter) {
+        String[] statements = statementBlock.split(delimiter);
 
             for (String statement: statements) {
-                Pattern prefix = Pattern.compile("var|loop|do|console");
+                statement = statement.trim();
+                Pattern prefix = Pattern.compile("var|loop|do|console|math");
                 Matcher matcher = prefix.matcher(statement);
 
                 if (matcher.find()) {
-                    switch (matcher.group()) { // TODO CHECK FOR ERRORS THROUGH RETURN AND EXIT OR EXIT IN FUNCTIONS?
+                    switch (matcher.group()) {
                         case "var":
                             dealWithVar(statement);
                             break;
                         case "loop":
-                            // TODO Deal with Loop Statement
-                            // dealWithLoop(statement);
+                            dealWithLoop(statement);
                             break;
                         case "do":
                             dealWithConditional(statement);
@@ -31,16 +39,15 @@ public class Translator {
                         case "console":
                             dealWithPrint(statement);
                             break;
+                        case "math":
+                            dealWithMath(statement);
+                            break;
                     }
                 } else {
                     System.out.println("Not a valid statement: " + statement);
                     System.exit(1);
                 }
             }
-        } catch (IOException e) {
-            System.out.println("Error Finding File Path.");
-            e.printStackTrace();
-        }
     }
 
     static void dealWithVar(String statement) {
@@ -63,14 +70,17 @@ public class Translator {
     }
 
     static void dealWithLoop(String statement) {
-        Pattern prefix = Pattern.compile("loop <([A-Z]+|[0|1]+)->([A-Z]+|[0|1]+), ?[0|1]+> ?{.*}$"); // [A-Z]+->[0|1]+, ?[0|1]+
+        Pattern prefix = Pattern.compile("loop<([A-Z]+|[0|1]+)->([A-Z]+|[0|1]+), ((math<(add|sub|mul|div|mod)), (op|[A-Z]+), ([A-Z]+|[0|1]+)>)>\\{([\\s\\S]+)\\}$"); // \\{.*\\}$
         Matcher matcher = prefix.matcher(statement);
-        System.out.println(statement);
-        System.out.println("find " + matcher.find());
+        if (matcher.matches()) {
+            runLoop(matcher.group(1), matcher.group(2), matcher.group(3), matcher.group(8));
+        } else {
+            System.out.println("Error with loop declaration: " + statement);
+        }
     }
 
     static void dealWithPrint(String statement) {
-        Pattern  pattern = Pattern.compile("console <.*>$");
+        Pattern  pattern = Pattern.compile("console<.*>$");
         Matcher matcher = pattern.matcher(statement);
         if (matcher.find()) {
             Pattern val = Pattern.compile("[1|0]+");
@@ -102,27 +112,27 @@ public class Translator {
     }
 
     static void dealWithConditional(String statement) {
-        Pattern prefix = Pattern.compile("do <.*> if <.*> otherwise do <.*>$"); // [A-Z]+->[0|1]+, ?[0|1]+
+        Pattern prefix = Pattern.compile("do <.*> if <.*> otherwise do <.*>$");
         Matcher matcher = prefix.matcher(statement);
         if (matcher.matches()) {
             String[] components = statement.split(" <|> |>$");
             String result;
             if ((result = parseCondition(components[3])).equals("true")) {
-                System.out.println("returned true");
+                parseStatements(components[1], ",");
             } else if (result.equals("false")) {
-                System.out.println("returned false");
+                parseStatements(components[5], ",");
             } else {
                 System.out.println("Error during condition parse: " + components[3]);
                 System.exit(1);
             }
         } else {
             System.out.println("Conditional must be done in the form do <.*> if <.*> otherwise do <.*>: " + statement);
+            System.exit(1);
         }
     }
 
     static String parseCondition(String condition) {
-        Pattern pattern = Pattern.compile("(.*?)(not)(.+)|(.+?)(and)(.+)|(.+?)(or)(.+)|(.+?)(eq)(.+)|(.+?)(!eq)(.+)|(.+?)(gt)(.+)|(.+?)(gt=)(.+)|(.+?)(lt)(.+)|(.+?)(lt=)(.+)|(true)|(false)");
-        Pattern element = Pattern.compile("([A-Z]+)|([0|1]+)");
+        Pattern pattern = Pattern.compile("(.*?)( not )(.+)|(.+?)( and )(.+)|(.+?)( or )(.+)|(.+?)( eq )(.+)|(.+?)( !eq )(.+)|(.+?)( gt )(.+)|(.+?)( gt= )(.+)|(.+?)( lt )(.+)|(.+?)( lt= )(.+)|(true)|(false)");
         Matcher matcher = pattern.matcher(condition.trim());
         if (matcher.matches()) {
             if (matcher.group(2) != null) {
@@ -158,30 +168,17 @@ public class Translator {
                     return "false";
                 }
             } else if (matcher.group(11) != null) {
-                System.out.println(matcher.group(10) + matcher.group(12));
-                Matcher left = element.matcher(matcher.group(10));
-                Matcher right = element.matcher(matcher.group(12));
-                if (!left.matches() || !right.matches()) {
-                    return "error";
-                }
+                return evaluateExpression(matcher.group(10), matcher.group(11).trim(), matcher.group(12));
             } else if (matcher.group(14) != null) {
-                return evaluateExpression(matcher.group(13), matcher.group(14), matcher.group(15));
+                return evaluateExpression(matcher.group(13), matcher.group(14).trim(), matcher.group(15));
             } else if (matcher.group(17) != null) {
-                // TODO
-                System.out.println(matcher.group(17));
-                System.out.println(condition);
+                return evaluateExpression(matcher.group(16), matcher.group(17).trim(), matcher.group(18));
             } else if (matcher.group(20) != null) {
-                // TODO
-                System.out.println(matcher.group(20));
-                System.out.println(condition);
+                return evaluateExpression(matcher.group(19), matcher.group(20).trim(), matcher.group(21));
             } else if (matcher.group(23) != null) {
-                // TODO
-                System.out.println(matcher.group(23));
-                System.out.println(condition);
+                return evaluateExpression(matcher.group(22), matcher.group(23).trim(), matcher.group(24));
             } else if (matcher.group(26) != null) {
-                // TODO
-                System.out.println(matcher.group(26));
-                System.out.println(condition);
+                return evaluateExpression(matcher.group(25), matcher.group(26).trim(), matcher.group(27));
             } else if (matcher.group(28) != null) {
                 return "true";
             } else if (matcher.group(29) != null) {
@@ -222,9 +219,131 @@ public class Translator {
             if (matcher.group(1) != null) {
                 return variables.get(matcher.group(1));
             } else {
-                return Integer.parseInt(matcher.group(2));
+                return Integer.parseInt(matcher.group(2), 2);
             }
         }
         return null;
+    }
+
+    static void runLoop(String startVal, String endVal, String arithmetic, String statementBlock) {
+        Pattern pattern = Pattern.compile("math<(add|sub|mul|div|mod), (op|[A-Z]+), ([A-Z]+|[0|1]+)>$");
+        Matcher matcher = pattern.matcher(arithmetic);
+        Integer left;
+        Integer right;
+        if (matcher.matches()) {
+            if (matcher.group(2).equals("op")) {
+                left = Integer.parseInt(startVal, 2);
+                right = getValue(endVal);
+                if (right == null) {
+                    System.out.println("Error, expected valid variable for loop iteration: " + endVal);
+                    System.exit(1);
+                }
+                if (matcher.group(1).equals("add") || matcher.group(1).equals("mul")) {
+                    while (left <= right) {
+                        parseStatements(statementBlock, ",");
+                        left = dealWithMath("math<"+matcher.group(1)+", "+Integer.toBinaryString(left)+", "+matcher.group(3)+">");
+                    }
+                } else {
+                    while (left >= right) {
+                        parseStatements(statementBlock, ",");
+                        left = dealWithMath("math<"+matcher.group(1)+", "+Integer.toBinaryString(left)+", "+matcher.group(3)+">");
+                    }
+                }
+            } else {
+                left = variables.get(startVal);
+                if (left == null) {
+                    System.out.println("Error, expected valid variable for loop incrementation: " + startVal);
+                    System.exit(1);
+                }
+                right = getValue(endVal);
+                if (right == null) {
+                    System.out.println("Error, expected valid variable for loop iteration: " + endVal);
+                    System.exit(1);
+                }
+                if (matcher.group(1).equals("add") || matcher.group(1).equals("mul")) {
+                    while (left <= right) {
+                        parseStatements(statementBlock, ",");
+                        left = dealWithMath("math<"+matcher.group(1)+", "+Integer.toBinaryString(left)+", "+matcher.group(3)+">");
+                    }
+                } else {
+                    while (left >= right) {
+                        parseStatements(statementBlock, ",");
+                        left = dealWithMath("math<"+matcher.group(1)+", "+Integer.toBinaryString(left)+", "+matcher.group(3)+">");
+                    }
+                }
+            }
+        } else {
+            System.out.println("Error with incrementation in loop: " + arithmetic);
+            System.exit(1);
+        }
+    }
+
+    static Integer dealWithMath(String statement) {
+        Pattern pattern = Pattern.compile("math<(add|sub|mul|div|mod), ([A-Z]+|[0|1]+), ([A-Z]+|[0|1]+)>$");
+        Matcher matcher = pattern.matcher(statement);
+        if (matcher.matches()) {
+                Integer leftSide;
+                Integer rightSide;
+                switch (matcher.group(1)) {
+                    case "add":
+                            leftSide = variables.get(matcher.group(2));
+                            rightSide = getValue(matcher.group(3));
+                            if (leftSide == null) {
+                                leftSide = Integer.parseInt(matcher.group(2), 2);
+                                return leftSide + rightSide;
+                            } else {
+                                variables.put(matcher.group(2), leftSide + rightSide);
+                                return leftSide + rightSide;
+                            }
+                    case "sub":
+                        leftSide = variables.get(matcher.group(2));
+                        rightSide = getValue(matcher.group(3));
+                        if (leftSide == null) {
+                            leftSide = Integer.parseInt(matcher.group(2), 2);
+                            return leftSide - rightSide;
+                        } else {
+                            variables.put(matcher.group(2), leftSide - rightSide);
+                            return leftSide - rightSide;
+                        }
+                    case "mul":
+                        leftSide = variables.get(matcher.group(2));
+                        rightSide = getValue(matcher.group(3));
+                        if (leftSide == null) {
+                            leftSide = Integer.parseInt(matcher.group(2), 2);
+                            return leftSide * rightSide;
+                        } else {
+                            variables.put(matcher.group(2), leftSide * rightSide);
+                            return leftSide * rightSide;
+                        }
+                    case "div":
+                        leftSide = variables.get(matcher.group(2));
+                        rightSide = getValue(matcher.group(3));
+                        if (leftSide == null) {
+                            leftSide = Integer.parseInt(matcher.group(2), 2);
+                            return leftSide / rightSide;
+                        } else {
+                            variables.put(matcher.group(2), leftSide / rightSide);
+                            return leftSide / rightSide;
+                        }
+                    case "mod":
+                        leftSide = variables.get(matcher.group(2));
+                        rightSide = getValue(matcher.group(3));
+                        if (leftSide == null) {
+                            leftSide = Integer.parseInt(matcher.group(2), 2);
+                            return leftSide % rightSide;
+                        } else {
+                            variables.put(matcher.group(2), leftSide % rightSide);
+                            return leftSide % rightSide;
+                        }
+                    default:
+                        System.out.println("Error with arithmetic: " + statement);
+                        System.exit(1);
+                        return null;
+                }
+        } else {
+            System.out.println("Error with arithmetic: " + statement);
+            System.exit(1);
+            return null;
+        }
     }
 }

@@ -1,5 +1,5 @@
-console <>?
-console <AHH>?
-console <1001>?
-console <something>?
-console <'literal'>?
+console<>?
+console<AHH>?
+console<1001>?
+console<something>?
+console<'literal'>?

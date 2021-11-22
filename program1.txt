@@ -1,0 +1,3 @@
+var STARTONE:2?
+var STARTTWO:5?
+var END:20?
