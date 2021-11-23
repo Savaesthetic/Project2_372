@@ -9,13 +9,21 @@ public class Interpreter {
     static HashMap<String, Integer> variables = new HashMap<String, Integer>();
     static int depth = 0;
     static String[] delimiters = new String[]{"\\?", "\\!", "\\@", "\\#", "\\$", "\\%"}; // Only allows for depth up to 5
+    static String[] commandLineArgs = new String[]{null, "CLONE", "CLTWO", "CLTHREE", "CLFOUR", "CLFIVE"};
+
     public static void main(String[] args) {
+        if (args.length < 1) {
+            System.out.println("Error, need to at least pass in file to interpret.");
+            System.exit(1);
+        }
+        for (int i = 1; i < args.length; i++) {
+            variables.put(commandLineArgs[i], Integer.parseInt(args[i]));
+        }
         try {
-            String program = Files.readString(Path.of("Program2_7.txt"));
+            String program = Files.readString(Path.of(args[0]));
             parseStatements(program, "\\?");
         } catch (IOException e) {
             System.out.println("Error Finding File Path. File must be in same directory as java file.");
-            e.printStackTrace();
         }
     }
 

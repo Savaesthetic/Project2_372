@@ -1,6 +1,6 @@
-var STARTONE:10?
-var STARTTWO:101?
-var END:10100?
+var STARTONE:CLONE?
+var STARTTWO:CLTWO?
+var END:CLTHREE?
 
 var SUM:0?
 var STARTONE:math<mul, STARTONE, 10>?
