@@ -1,0 +1,23 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Launch Current File",
+            "request": "launch",
+            "mainClass": "${file}",
+            "args": "Program1.txt 2 5 20"
+        },
+        {
+            "type": "java",
+            "name": "Launch Translator",
+            "request": "launch",
+            "mainClass": "Translator",
+            "projectName": "Project2_372-1_6a7494c4",
+            "args": "Program1.txt"
+        }
+    ]
+}

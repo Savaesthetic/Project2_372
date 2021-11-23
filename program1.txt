@@ -5,7 +5,7 @@ var END:CLTHREE?
 var SUM:0?
 var STARTONE:math<mul, STARTONE, 10>?
 loop <STARTONE->END, math<add, STARTONE, 10>> {
-    var SUM:math<add, SUM, 1>
+    var SUM:math<add, SUM, 1>!
 }?
 var STARTTWO:math<mul, STARTTWO, 10>?
 loop <STARTTWO->END, math<add, STARTTWO, 101>> {

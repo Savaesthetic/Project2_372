@@ -35,6 +35,9 @@ public class Translator {
 
         for (String statement: statements) {
             statement = statement.trim();
+            if (statement.length() == 0) {
+                continue;
+            }
             Pattern prefix = Pattern.compile("var|loop|do|console|exit");
             Matcher matcher = prefix.matcher(statement);
 
