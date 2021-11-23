@@ -1,0 +1,3 @@
+loop<1->100, math<add, op, 1>>{
+    console <'Hey'>!
+}?

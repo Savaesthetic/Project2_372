@@ -5,16 +5,18 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Interpreter {
-    static HashMap<String, Integer> variables = new HashMap<String, Integer>();
-    static int depth = 0;
-    static String[] delimiters = new String[]{"\\?", "\\!", "\\@", "\\#", "\\$", "\\%"}; // Only allows for depth up to 5
-    static String[] commandLineArgs = new String[]{null, "CLONE", "CLTWO", "CLTHREE", "CLFOUR", "CLFIVE"};
+public class Translator {
+    static HashMap<String, Integer> variables = new HashMap<String, Integer>(); // Holds all variables for the current program
+    static int depth = 0; // Holds the depth of the current execution block
+    static String[] delimiters = new String[]{"\\?", "\\!", "\\@", "\\#", "\\$", "\\%"}; // Holds delimiters for each depth, only allows for depth up to 5
+    static String[] commandLineArgs = new String[]{null, "CLONE", "CLTWO", "CLTHREE", "CLFOUR", "CLFIVE"}; // Holds the names for up to five command line arguments
 
+    /* main sets all of the command line arguments and opens and stores the 
+    program in my programming langauge into a string */
     public static void main(String[] args) {
         if (args.length < 1) {
             System.out.println("Error, need to at least pass in file to interpret.");
-            System.exit(1);
+            System.exit(0);
         }
         for (int i = 1; i < args.length; i++) {
             variables.put(commandLineArgs[i], Integer.parseInt(args[i]));
@@ -27,6 +29,7 @@ public class Interpreter {
         }
     }
 
+    // parseStatements parses the given statementBlock by teh givin delimiter
     static void parseStatements(String statementBlock, String delimiter) {
         String[] statements = statementBlock.split(delimiter);
 
@@ -35,6 +38,7 @@ public class Interpreter {
             Pattern prefix = Pattern.compile("var|loop|do|console|exit");
             Matcher matcher = prefix.matcher(statement);
 
+            // evaluates each statement by the keyword prefacing it
             if (matcher.find()) {
                 switch (matcher.group()) {
                     case "var":
@@ -61,6 +65,8 @@ public class Interpreter {
         depth--;
     }
 
+    /* variable Assignment takes in a statement and assigns sets a variable in the
+    variable hashtable if valid or throws an error */
     static void variableAssignment(String statement) {
         Pattern pattern = Pattern.compile("var [A-Z]+:.*");
         Matcher matcher = pattern.matcher(statement);
@@ -86,6 +92,8 @@ public class Interpreter {
         }
     }
 
+    /* returns the decimal value of a given variable if it exists
+    or throws an error if not */
     static Integer getVariableIntegerValue(String statement) {
         Integer value = variables.get(statement);
         if (value == null) {
@@ -95,10 +103,8 @@ public class Interpreter {
         return value;
     }
 
-    static String getVariableStringValue(String statement) {
-        return Integer.toBinaryString(getVariableIntegerValue(statement));
-    }
-
+    /* calculates the decimal value of the given arithmetic expression and
+    returns the result if valid */
     static Integer getMathIntegerValue(String op, String left, String right) {
         switch(op) {
             case "add":
@@ -117,6 +123,7 @@ public class Interpreter {
         return null;
     }
 
+    /* returns the decimal value of a given variable or binary string */
     static Integer getIntegerValue(String statement) {
         Integer val;
         if ((val = variables.get(statement)) != null) {
@@ -132,14 +139,7 @@ public class Interpreter {
         return null;
     }
 
-    /*
-     * Gets the string representation of a value
-     * Introduced redundancy when value is already in string form.
-     */
-    static String getStringValue(String statement) {
-        return Integer.toBinaryString(getIntegerValue(statement));
-    }
-
+    /* handles the interpretation of the printing statement for my language */
     static void printStatements(String statement){
         Pattern  pattern = Pattern.compile("console <.*>");
         Matcher matcher = pattern.matcher(statement);
@@ -170,6 +170,7 @@ public class Interpreter {
         }
     }
 
+    /* handles the conditional interpretation for my programming language */
     static void runConditional(String statement) {
         Pattern prefix = Pattern.compile("do <([\\s\\S]*?)> if <(.*)> otherwise do <([\\s\\S]*)>");
         Matcher matcher = prefix.matcher(statement);
@@ -277,8 +278,9 @@ public class Interpreter {
         }
     }
 
+    /* checks to make sure the loop statement is declared correctly */
     static void runLoop(String statement) {
-        Pattern prefix = Pattern.compile("loop <([A-Z]+|[0|1]+)->([A-Z]+|[0|1]+), (math<(add|sub|mul|div|mod), (op|[A-Z]+), ([A-Z]+|[0|1]+)>)>\\{([\\s\\S]+)\\}"); // \\{.*\\}$
+        Pattern prefix = Pattern.compile("loop <([A-Z]+|[0|1]+)->([A-Z]+|[0|1]+), (math<(add|sub|mul|div|mod), (op|[A-Z]+), ([A-Z]+|[0|1]+)>)> \\{([\\s\\S]+)\\}"); // \\{.*\\}$
         Matcher matcher = prefix.matcher(statement);
         if (matcher.matches()) {
             loopHelper(matcher.group(1), matcher.group(2), matcher.group(4), matcher.group(5), matcher.group(6), matcher.group(7));
@@ -288,6 +290,7 @@ public class Interpreter {
         }
     }
 
+    /* handles the loop interpretation for my langauge */
     static void loopHelper(String startVal, String endVal, String operator, String mathLeft, String mathRight, String statementBlock) {
         Integer left;
         Integer right;
@@ -332,6 +335,8 @@ public class Interpreter {
         }
     }
 
+    /* handles the exit interpretation for my language, simply terminates
+    the running interpretation */
     static void handleExit(String statement) {
         Pattern pattern = Pattern.compile("exit");
         Matcher matcher = pattern.matcher(statement);
@@ -343,6 +348,7 @@ public class Interpreter {
         }
     }
 
+    /* returns the delimiter used for parsing for the current depth */
     static String getDelimiter() {
         return delimiters[depth];
     }

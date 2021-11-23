@@ -1,3 +1,0 @@
-do <console <'first'>! console <>! console <'second'>> if <true and 10 eq 10> otherwise do <
-console <'false'>>?
-do <console <'true'>> if <math<add|10|10> eq 100> otherwise do <console <'false'>>?
