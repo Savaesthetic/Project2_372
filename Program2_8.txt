@@ -1,0 +1,10 @@
+var NUMBER:100?
+do <console <'not prime'>! exit!> if <NUMBER lt= 1> otherwise do <>?
+do <console <'prime'>! exit!> if <NUMBER eq 10> otherwise do <>?
+do <console <'not prime'>! exit!> if <math<mod, NUMBER, 10> eq 0> otherwise do <>?
+var I:11?
+var END:math<sub, NUMBER, 1>?
+loop <I->END, math<add, I, 10>>{
+    do <console <'not prime'>@ exit> if <math<mod, NUMBER, I> eq 0> otherwise do <>
+}?
+console <'prime'>?

@@ -10,3 +10,6 @@ var X:10012?
 var X:1001 ?
 var AHHHHH:1111?
 var WHATAREYOUDOING:0?
+var Y:1?
+var X:Y?
+var X:Z?

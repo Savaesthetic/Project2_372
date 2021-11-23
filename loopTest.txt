@@ -1,4 +1,4 @@
 var X:1?
-loop<X->100, math<add, X, 1>>{
-	console<X>
+loop <X->100, math<add|X|1>>{
+	console <X>
 	}?
