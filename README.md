@@ -3,8 +3,10 @@ Creating a translator in java for a self-made language.
 
 # Warning
 ## Be careful with spaces as the interpreter is not forgiving when it comes to them.
-## Running the program
+# Running the program (Since it's an interpreter)
 To run the program simply use: java ./Translator.java ./Filename.txt (Additional Command Line Arguments)
+Running the example program Program1.txt with arguments 2, 5, and 20 would look like:
+java Translator.java Program1.txt 2 5 20
 
 ## Grammar
 \<program\>:==\<statement_block\><br/><br/>
