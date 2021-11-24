@@ -9,7 +9,7 @@
             "name": "Launch Current File",
             "request": "launch",
             "mainClass": "${file}",
-            "args": "Program1.txt 2 5 20"
+            "args": "temp.txt"
         },
         {
             "type": "java",

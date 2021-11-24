@@ -17,10 +17,11 @@ To run the program simply use: java ./Translator.java ./Filename.txt (Additional
 \<statement\>:==\<variable_assignment\>|<br/>
 \<conditional\>|<br/>
 \<loop\>|<br/>
-\<print\>|
+\<print\>|<br/>
 \<exit\><br/><br/>
 
 \<variable_assignment\>::=var \<variable\>:\<integer\>|<br/>
+var \<variable\>:-\<integer\>|<br/>
 var \<variable\>:\<variable\>|<br/>
 var \<variable\>:\<arithmetic_exp\><br/><br/>
 
@@ -38,7 +39,7 @@ console <\<element\>><br/><br/>
 
 \<string_literal\>::='\<string\>'<br/><br/>
 
-\<string\>::=[^?!@#$%] (Any character other than (?!@#$%)because they are used for splitting statements.)<br/><br/>
+\<string\>::=[^?!@#$%] (Any character other than (?!@#$%) because they are used for splitting statements.)<br/><br/>
 
 \<element\>::=\<variable\>|\<integer\><br/><br/>
 

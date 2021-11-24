@@ -74,7 +74,7 @@ public class Translator {
         Pattern pattern = Pattern.compile("var [A-Z]+:.*");
         Matcher matcher = pattern.matcher(statement);
         if (matcher.matches()) {
-            pattern = Pattern.compile("([0|1]+)|([A-Z]+)|(math<(add|sub|mul|div|mod), ([0|1]+|[A-Z]+), ([0|1]+|[A-Z]+)>)");
+            pattern = Pattern.compile("(-?[0|1]+)|([A-Z]+)|(math<(add|sub|mul|div|mod), (-?[0|1]+|[A-Z]+), (-?[0|1]+|[A-Z]+)>)");
             matcher = pattern.matcher(statement.split(":")[1]);
             if (matcher.matches()) {
                 String[] var = statement.split(" |:"); // name = var[1], val = var[2]
@@ -152,7 +152,7 @@ public class Translator {
                 System.out.println();
                 return;
             }
-            pattern = Pattern.compile("([1|0]+)|('.*')|([A-Z]+)");
+            pattern = Pattern.compile("(-?[1|0]+)|('.*')|([A-Z]+)");
             matcher = pattern.matcher(component);
 
             if (matcher.matches()) {
@@ -175,7 +175,7 @@ public class Translator {
 
     /* handles the conditional interpretation for my programming language */
     static void runConditional(String statement) {
-        Pattern prefix = Pattern.compile("do <([\\s\\S]*?)> if <(.*)> otherwise do <([\\s\\S]*)>");
+        Pattern prefix = Pattern.compile("do <([\\s\\S]*)> if <(.*)> otherwise do <([\\s\\S]*)>");
         Matcher matcher = prefix.matcher(statement);
         if (matcher.matches()) {
             if (evaluateCondition(matcher.group(2)).equals("true")) {
@@ -250,7 +250,7 @@ public class Translator {
     static String evaluateExpression(String left, String operand, String right) {
         Integer leftValue;
         Integer rightValue;
-        Pattern pattern = Pattern.compile("math<(add|sub|mul|div|mod), ([0|1]+|[A-Z]+), ([A-Z]+|[0|1]+)>$");
+        Pattern pattern = Pattern.compile("math<(add|sub|mul|div|mod), (-?[0|1]+|[A-Z]+), ([A-Z]+|-?[0|1]+)>$");
         Matcher leftMatcher = pattern.matcher(left);
         Matcher rightMatcher = pattern.matcher(right);
         if (leftMatcher.matches()) {
@@ -283,7 +283,7 @@ public class Translator {
 
     /* checks to make sure the loop statement is declared correctly */
     static void runLoop(String statement) {
-        Pattern prefix = Pattern.compile("loop <([A-Z]+|[0|1]+)->([A-Z]+|[0|1]+), (math<(add|sub|mul|div|mod), (op|[A-Z]+), ([A-Z]+|[0|1]+)>)> \\{([\\s\\S]+)\\}"); // \\{.*\\}$
+        Pattern prefix = Pattern.compile("loop <([A-Z]+|-?[0|1]+)->([A-Z]+|-?[0|1]+), (math<(add|sub|mul|div|mod), (op|[A-Z]+), ([A-Z]+|-?[0|1]+)>)> \\{([\\s\\S]+)\\}");
         Matcher matcher = prefix.matcher(statement);
         if (matcher.matches()) {
             loopHelper(matcher.group(1), matcher.group(2), matcher.group(4), matcher.group(5), matcher.group(6), matcher.group(7));
